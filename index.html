@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venture OS — AI Business Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ─── Reset & Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0a0a0f;
+  --surface:   #111118;
+  --surface2:  #16161f;
+  --surface3:  #1c1c28;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --gold:      #c9a84c;
+  --gold-dim:  #8a6c2e;
+  --gold-glow: rgba(201,168,76,0.15);
+  --cream:     #f0ead6;
+  --muted:     #6b6b80;
+  --muted2:    #9898b0;
+  --text:      #e8e8f0;
+  --red:       #e05252;
+  --green:     #52c07a;
+  --blue:      #5b8cf5;
+  --sidebar-w: 240px;
+  --radius:    12px;
+  --radius-lg: 18px;
+  font-size: 15px;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  overflow: hidden;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* ─── Sidebar ───────────────────────────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  position: relative;
+  z-index: 10;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-logo {
+  padding: 0 20px 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.sidebar-logo .logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--gold), #e8c87a);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+.logo-text {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  color: var(--cream);
+  letter-spacing: -0.3px;
+}
+
+.logo-sub {
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0 20px;
+  margin: 8px 0 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.15s ease;
+  position: relative;
+  color: var(--muted2);
+  font-size: 14px;
+  font-weight: 400;
+  user-select: none;
+  margin: 1px 8px;
+  border-radius: 8px;
+}
+
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+
+.nav-item.active {
+  background: var(--gold-glow);
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -8px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 60%;
+  background: var(--gold);
+  border-radius: 99px;
+}
+
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--gold);
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 99px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 16px 20px 0;
+  border-top: 1px solid var(--border);
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.user-chip:hover { background: var(--surface2); }
+
+.user-avatar {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, #5b8cf5, #a855f7);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: #fff;
+  flex-shrink: 0;
+}
+
+.user-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.user-plan { font-size: 11px; color: var(--gold); }
+
+/* ─── Main Content ──────────────────────────────────────────────── */
+#main {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg);
+  position: relative;
+}
+
+/* subtle grain overlay */
+#main::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.section { display: none; padding: 40px 48px; max-width: 1100px; animation: fadeUp 0.4s ease; }
+.section.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Page Header ───────────────────────────────────────────────── */
+.page-header { margin-bottom: 36px; }
+
+.page-eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 34px;
+  color: var(--cream);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.page-desc { color: var(--muted2); font-size: 14px; margin-top: 8px; line-height: 1.6; max-width: 560px; }
+
+/* ─── Card ──────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }
+
+/* ─── Form ──────────────────────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+
+label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted2);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+input[type="number"], input[type="text"], select, textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b80' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+select option { background: var(--surface3); }
+
+/* ─── Button ────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  letter-spacing: 0.1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.15s;
+}
+.btn:hover::after { background: rgba(255,255,255,0.05); }
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), #e8c87a);
+  color: #1a1200;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3), 0 1px 0 rgba(255,255,255,0.2) inset;
+}
+.btn-primary:hover { box-shadow: 0 6px 28px rgba(201,168,76,0.45); }
+
+.btn-secondary {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted2);
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+
+.btn-danger {
+  background: rgba(224,82,82,0.15);
+  border: 1px solid rgba(224,82,82,0.3);
+  color: var(--red);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #1a7a47, #22a05e);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(82,192,122,0.25);
+}
+
+.btn-lg { padding: 16px 36px; font-size: 15px; border-radius: 14px; }
+.btn-sm { padding: 8px 16px; font-size: 12px; border-radius: 8px; }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn .spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Idea Cards ────────────────────────────────────────────────── */
+.ideas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.idea-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.idea-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.idea-card:hover {
+  border-color: var(--gold-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.idea-card:hover::before { opacity: 1; }
+
+.idea-number {
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.idea-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  color: var(--cream);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.idea-desc {
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.idea-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+
+.tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.tag-gold { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+.tag-blue { background: rgba(91,140,245,0.12); color: var(--blue); border: 1px solid rgba(91,140,245,0.2); }
+.tag-green { background: rgba(82,192,122,0.12); color: var(--green); border: 1px solid rgba(82,192,122,0.2); }
+
+.idea-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.idea-stat { font-size: 12px; color: var(--muted); }
+.idea-stat strong { color: var(--green); font-weight: 600; }
+
+/* ─── Roadmap ───────────────────────────────────────────────────── */
+.roadmap-header {
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.selected-idea-label { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 4px; }
+.selected-idea-name { font-family: 'Instrument Serif', serif; font-size: 20px; color: var(--cream); }
+
+.roadmap-badge {
+  margin-left: auto;
+  padding: 6px 14px;
+  background: var(--gold-glow);
+  border: 1px solid var(--gold-dim);
+  border-radius: 99px;
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.roadmap-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  width: fit-content;
+}
+
+.roadmap-tab {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted2);
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.roadmap-tab:hover { color: var(--text); }
+.roadmap-tab.active { background: var(--surface3); color: var(--gold); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+.roadmap-panel { display: none; }
+.roadmap-panel.active { display: block; animation: fadeUp 0.3s ease; }
+
+.task-timeline { display: flex; flex-direction: column; gap: 2px; }
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+  position: relative;
+}
+.task-item:hover { background: var(--surface2); }
+
+.task-bullet {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-top: 5px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.task-time { font-size: 12px; color: var(--gold); font-weight: 600; min-width: 70px; flex-shrink: 0; margin-top: 2px; }
+.task-title { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+.task-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ─── Trackers ──────────────────────────────────────────────────── */
+.trackers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+.progress-section { grid-column: 1 / -1; }
+
+.progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.progress-label span { font-size: 13px; color: var(--muted2); }
+.progress-label strong { font-size: 22px; font-family: 'Instrument Serif', serif; color: var(--cream); }
+
+.progress-track {
+  height: 8px;
+  background: var(--surface3);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #e8c87a);
+  border-radius: 99px;
+  transition: width 1s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 0 12px rgba(201,168,76,0.4);
+  width: 0%;
+}
+
+.chart-container { position: relative; height: 200px; display: flex; align-items: center; justify-content: center; }
+
+.checklist { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.check-item:hover { border-color: var(--border2); }
+.check-item.done { opacity: 0.55; }
+
+.check-box {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border2);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  font-size: 11px;
+}
+
+.check-item.done .check-box {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.check-text { font-size: 13px; color: var(--text); flex: 1; }
+.check-item.done .check-text { text-decoration: line-through; color: var(--muted); }
+
+/* ─── Notes ─────────────────────────────────────────────────────── */
+.notes-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.notes-area {
+  width: 100%;
+  min-height: 320px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 20px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.notes-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+.notes-status { font-size: 12px; color: var(--muted); }
+.notes-status.saved { color: var(--green); }
+
+/* ─── Launch ─────────────────────────────────────────────────────── */
+.launch-hero {
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(201,168,76,0.05) 100%);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  text-align: center;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.launch-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.launch-icon { font-size: 48px; margin-bottom: 20px; }
+.launch-title { font-family: 'Instrument Serif', serif; font-size: 36px; color: var(--cream); margin-bottom: 12px; }
+.launch-desc { color: var(--muted2); font-size: 15px; margin-bottom: 32px; }
+
+.launch-results { display: none; }
+.launch-results.visible { display: block; animation: fadeUp 0.4s ease; }
+
+.launch-section-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 16px;
+  margin-top: 28px;
+}
+
+.launch-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+
+.launch-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all 0.2s;
+}
+.launch-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+
+.launch-card-icon { font-size: 24px; margin-bottom: 10px; }
+.launch-card-title { font-size: 14px; font-weight: 600; color: var(--cream); margin-bottom: 6px; }
+.launch-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+.action-steps { display: flex; flex-direction: column; gap: 10px; }
+
+.action-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.2s;
+}
+.action-step:hover { border-color: var(--border2); }
+
+.step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #e8c87a);
+  color: #1a1200;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-content .step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.step-content .step-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ─── Toast ─────────────────────────────────────────────────────── */
+#toast-container {
+  position: fixed;
+  top: 24px; right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease;
+  max-width: 320px;
+}
+
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error { border-left: 3px solid var(--red); }
+.toast.info { border-left: 3px solid var(--gold); }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Empty State ───────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 60px 40px;
+  color: var(--muted);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 16px; color: var(--muted2); margin-bottom: 8px; }
+.empty-state p { font-size: 13px; line-height: 1.6; }
+
+/* ─── Loading Skeleton ──────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ─── Mobile Hamburger ──────────────────────────────────────────── */
+#menu-toggle {
+  display: none;
+  position: fixed;
+  top: 16px; left: 16px;
+  z-index: 200;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  width: 38px; height: 38px;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text);
+}
+
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9;
+  backdrop-filter: blur(2px);
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 240px; }
+  #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); z-index: 100; }
+  #sidebar.open { transform: translateX(0); }
+  #sidebar-overlay.open { display: block; }
+  #menu-toggle { display: flex; }
+  .section { padding: 24px 20px; padding-top: 64px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .trackers-grid { grid-template-columns: 1fr; }
+  .launch-hero { padding: 32px 20px; }
+  .launch-title { font-size: 26px; }
+  .page-title { font-size: 26px; }
+}
+
+@media (max-width: 600px) {
+  .ideas-grid { grid-template-columns: 1fr; }
+  .roadmap-tabs { width: 100%; overflow-x: auto; }
+}
+
+/* ─── Divider ───────────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* ─── Tooltip-like stat row ─────────────────────────────────────── */
+.stat-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.stat-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.stat-chip-value { font-family: 'Instrument Serif', serif; font-size: 24px; color: var(--cream); }
+.stat-chip-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- Mobile Overlay -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- Menu Toggle -->
+<button id="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">Venture OS</div>
+        <div class="logo-sub">Business AI</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-section-label">Workspace</div>
+
+  <div class="nav-item active" onclick="navigate('ideas')">
+    <span class="nav-icon">✦</span>
+    Generate Idea
+  </div>
+  <div class="nav-item" onclick="navigate('roadmap')">
+    <span class="nav-icon">🗺</span>
+    Roadmap
+  </div>
+  <div class="nav-item" onclick="navigate('trackers')">
+    <span class="nav-icon">📊</span>
+    Trackers
+  </div>
+  <div class="nav-item" onclick="navigate('notes')">
+    <span class="nav-icon">📝</span>
+    Notes
+  </div>
+  <div class="nav-item" onclick="navigate('launch')">
+    <span class="nav-icon">🚀</span>
+    Launch
+    <span class="nav-badge" id="launch-badge" style="display:none">!</span>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-chip">
+      <div class="user-avatar">V</div>
+      <div>
+        <div class="user-name">Founder</div>
+        <div class="user-plan">Pro Plan ✦</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main -->
+<main id="main">
+
+  <!-- ── GENERATE IDEAS ──────────────────────────────────────── -->
+  <section id="section-ideas" class="section active">
+    <div class="page-header">
+      <div class="page-eyebrow">Step 01</div>
+      <h1 class="page-title">Generate Your<br>Business Idea</h1>
+      <p class="page-desc">Tell us about yourself and we'll surface 20 high-potential business ideas tailored to your skills, budget, and lifestyle.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="budget">💰 Budget (USD)</label>
+          <input type="number" id="budget" placeholder="e.g. 5000" min="0" value="">
+        </div>
+        <div class="form-group">
+          <label for="skills">🛠 Your Skills</label>
+          <input type="text" id="skills" placeholder="e.g. coding, design, marketing">
+        </div>
+        <div class="form-group">
+          <label for="time">⏱ Time Per Day</label>
+          <select id="time">
+            <option value="">Select availability</option>
+            <option value="1-2 hours">1–2 hours</option>
+            <option value="3-4 hours">3–4 hours</option>
+            <option value="5-6 hours">5–6 hours</option>
+            <option value="Full-time (8+ hours)">Full-time (8+ hours)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="interest">🎯 Interest Category</label>
+          <select id="interest">
+            <option value="">Select a category</option>
+            <option value="Tech & SaaS">Tech & SaaS</option>
+            <option value="E-commerce">E-commerce</option>
+            <option value="Content & Media">Content & Media</option>
+            <option value="Education & Coaching">Education & Coaching</option>
+            <option value="Health & Wellness">Health & Wellness</option>
+            <option value="Finance & Fintech">Finance & Fintech</option>
+            <option value="Local & Services">Local & Services</option>
+            <option value="AI & Automation">AI & Automation</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="generateIdeas()" id="gen-btn">
+        <span>✦</span> Generate 20 Ideas
+      </button>
+    </div>
+
+    <div id="ideas-container"></div>
+  </section>
+
+  <!-- ── ROADMAP ─────────────────────────────────────────────── -->
+  <section id="section-roadmap" class="section">
+    <div class="page-header">
+      <div class="page-eyebrow">Step 02</div>
+      <h1 class="page-title">Your 30-Day<br>Roadmap</h1>
+      <p class="page-desc">A structured action plan broken into hourly, daily, and monthly sprints to get your business off the ground.</p>
+    </div>
+
+    <div class="roadmap-header">
+      <div>
+        <div class="selected-idea-label">Selected Idea</div>
+        <div class="selected-idea-name" id="selected-idea-display">—</div>
+      </div>
+      <div class="roadmap-badge" id="roadmap-badge">30-Day Plan</div>
+    </div>
+
+    <div class="roadmap-tabs">
+      <button class="roadmap-tab active" onclick="switchTab('hourly', this)">⏰ First 24 Hours</button>
+      <button class="roadmap-tab" onclick="switchTab('daily', this)">📅 Days 1–7</button>
+      <button class="roadmap-tab" onclick="switchTab('monthly', this)">📆 Days 8–30</button>
+    </div>
+
+    <div id="roadmap-content">
+      <div class="empty-state">
+        <div class="empty-icon">🗺</div>
+        <h3>Select an idea first</h3>
+        <p>Go back to Generate Idea and choose a business concept to unlock your roadmap.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TRACKERS ────────────────────────────────────────────── -->
+  <section id="section-trackers" class="section">
+    <div class="page-header">
+      <div class="page-eyebrow">Step 03</div>
+      <h1 class="page-title">Progress<br>Tracker</h1>
+      <p class="page-desc">Monitor your momentum. Check off tasks as you complete them and watch your progress grow.</p>
+    </div>
+
+    <div class="card">
+      <div class="progress-section">
+        <div class="progress-label">
+          <span>Overall Completion</span>
+          <strong id="progress-pct">0%</strong>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trackers-grid" style="margin-top: 20px;">
+      <div class="card">
+        <div style="font-size: 13px; font-weight: 600; color: var(--muted2); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">Task Distribution</div>
+        <div class="chart-container">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 13px; font-weight: 600; color: var(--muted2); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">Task Checklist</div>
+        <div class="checklist" id="checklist">
+          <div class="empty-state" style="padding: 20px;">
+            <p>Generate a roadmap to see tasks here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NOTES ──────────────────────────────────────────────── -->
+  <section id="section-notes" class="section">
+    <div class="page-header">
+      <div class="page-eyebrow">Step 04</div>
+      <h1 class="page-title">Your Notes<br>& Ideas</h1>
+      <p class="page-desc">Capture thoughts, research, and insights as you build your business. Your notes auto-save to the cloud.</p>
+    </div>
+
+    <div class="card">
+      <div class="notes-toolbar">
+        <button class="btn btn-ghost btn-sm" onclick="insertNote('## ')">H2</button>
+        <button class="btn btn-ghost btn-sm" onclick="insertNote('**bold** ')">B</button>
+        <button class="btn btn-ghost btn-sm" onclick="insertNote('- ')">List</button>
+        <button class="btn btn-ghost btn-sm" onclick="insertNote('[ ] ')">Todo</button>
+        <button class="btn btn-ghost btn-sm" onclick="insertNote('\n---\n')">—</button>
+      </div>
+      <textarea class="notes-area" id="notes-area" placeholder="Start writing your notes...&#10;&#10;Use the toolbar above for quick formatting.&#10;&#10;Ideas, strategies, resources — capture it all here."></textarea>
+      <div class="notes-footer">
+        <span class="notes-status" id="notes-status">Unsaved changes</span>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-ghost btn-sm" onclick="clearNotes()">Clear</button>
+          <button class="btn btn-primary" onclick="saveNotes()" id="save-notes-btn">💾 Save Notes</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── LAUNCH ─────────────────────────────────────────────── -->
+  <section id="section-launch" class="section">
+    <div class="page-header">
+      <div class="page-eyebrow">Step 05</div>
+      <h1 class="page-title">Launch Your<br>Business</h1>
+      <p class="page-desc">You've done the planning. Now it's time to ship. Get your complete go-to-market strategy in one click.</p>
+    </div>
+
+    <div class="launch-hero">
+      <div class="launch-icon">🚀</div>
+      <div class="launch-title">Ready to Go Live?</div>
+      <p class="launch-desc">Generate your complete launch strategy — sales plan, marketing playbook, and step-by-step action items.</p>
+      <button class="btn btn-primary btn-lg" onclick="launchPlan()" id="launch-btn">
+        ✦ Ready to Launch
+      </button>
+    </div>
+
+    <div class="launch-results" id="launch-results"></div>
+  </section>
+
+</main>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────
+   CONFIG
+───────────────────────────────────────────────────────────────── */
+const API_BASE = 'https://script.google.com/macros/s/AKfycbxvhFFSCg6UudnT7ZCKq3m1LECVQmySf_RN8bLILZJ__Ht15yVldkfJMpINe7u1aOC2Kg/exec
+const USE_MOCK = false
+
+/* ─────────────────────────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────────────────────────── */
+let state = {
+  selectedIdea: null,
+  roadmap: null,
+  tasks: [],
+  notes: '',
+  launchPlan: null,
+};
+
+// Load from localStorage
+try {
+  const saved = localStorage.getItem('ventureOS_state');
+  if (saved) state = { ...state, ...JSON.parse(saved) };
+} catch(e) {}
+
+function saveState() {
+  try { localStorage.setItem('ventureOS_state', JSON.stringify(state)); } catch(e) {}
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   NAVIGATION
+───────────────────────────────────────────────────────────────── */
+function navigate(section) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + section).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(
+      section === 'ideas' ? 'generate' : section === 'roadmap' ? 'roadmap' :
+      section === 'trackers' ? 'tracker' : section === 'notes' ? 'notes' : 'launch'
+    )) n.classList.add('active');
+  });
+  closeSidebar();
+
+  if (section === 'roadmap') renderRoadmap();
+  if (section === 'trackers') renderTrackers();
+  if (section === 'notes') loadNotes();
+  if (section === 'launch' && state.launchPlan) renderLaunchResults(state.launchPlan);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────────────────────────── */
+function toast(msg, type = 'info', icon = '') {
+  const icons = { success: '✅', error: '❌', info: '💡' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type] || icon}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   API CALLS (with mock fallback)
+───────────────────────────────────────────────────────────────── */
+async function apiCall(endpoint, body) {
+  if (USE_MOCK) return mockAPI(endpoint, body);
+  try {
+    const r = await fetch(API_BASE + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) throw new Error('API error ' + r.status);
+    return await r.json();
+  } catch(e) {
+    toast('API unavailable — using demo data', 'info');
+    return mockAPI(endpoint, body);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   MOCK API
+───────────────────────────────────────────────────────────────── */
+function mockAPI(endpoint, body) {
+  return new Promise(resolve => setTimeout(() => {
+    if (endpoint === '/getIdeas') resolve(mockIdeas(body));
+    if (endpoint === '/generateRoadmap') resolve(mockRoadmap(body));
+    if (endpoint === '/saveNotes') resolve({ success: true });
+    if (endpoint === '/launchPlan') resolve(mockLaunch(body));
+  }, 1400));
+}
+
+function mockIdeas({ interest, skills, budget, time }) {
+  const templates = [
+    { title: 'AI Newsletter Agency', desc: 'Curate and deliver AI-powered niche newsletters for B2B audiences. Monetize via sponsorships and premium tiers.', tags: ['SaaS', 'Content', 'Low-risk'], revenue: '$3k–8k/mo', effort: 'Low' },
+    { title: 'Micro-SaaS Tool', desc: 'Build a single-feature SaaS solving one painful problem for a specific niche. Launch in 30 days.', tags: ['Tech', 'Scalable'], revenue: '$5k–20k/mo', effort: 'Medium' },
+    { title: 'Digital Product Studio', desc: 'Create and sell Notion templates, Figma UI kits, and digital downloads on Gumroad and Etsy.', tags: ['Creative', 'Passive'], revenue: '$2k–6k/mo', effort: 'Low' },
+    { title: 'Productized Consulting', desc: 'Package your expertise into fixed-scope deliverables. Sell strategy audits, done-for-you setups.', tags: ['Services', 'High-margin'], revenue: '$8k–25k/mo', effort: 'Medium' },
+    { title: 'AI Automation Agency', desc: 'Help small businesses automate repetitive workflows using no-code + AI tools like Zapier and GPT.', tags: ['AI', 'B2B', 'Hot'], revenue: '$10k–40k/mo', effort: 'High' },
+    { title: 'Online Course Platform', desc: 'Teach what you know. Build a cohort-based course or self-paced program on a specific skill set.', tags: ['Education', 'Scalable'], revenue: '$4k–15k/mo', effort: 'Medium' },
+    { title: 'Niche Marketplace', desc: 'Build a curated marketplace connecting buyers and sellers in an underserved vertical.', tags: ['Marketplace', 'Tech'], revenue: '$6k–30k/mo', effort: 'High' },
+    { title: 'White-Label SaaS Reseller', desc: 'Resell existing SaaS tools under your own brand to local businesses with added support.', tags: ['Reseller', 'Low-code'], revenue: '$3k–12k/mo', effort: 'Low' },
+    { title: 'Content Creation Studio', desc: 'Produce short-form video content for brands on LinkedIn, TikTok, and YouTube Shorts.', tags: ['Content', 'Creative'], revenue: '$4k–18k/mo', effort: 'Medium' },
+    { title: 'Lead Gen Service', desc: 'Generate qualified leads for B2B companies using AI-powered outbound and content marketing.', tags: ['B2B', 'Growth'], revenue: '$7k–25k/mo', effort: 'Medium' },
+    { title: 'Subscription Box Curation', desc: 'Curate and ship monthly themed boxes to a passionate niche audience.', tags: ['E-commerce', 'Physical'], revenue: '$5k–20k/mo', effort: 'Medium' },
+    { title: 'Community + Membership', desc: 'Build a premium community around a niche topic with monthly membership and live events.', tags: ['Community', 'Recurring'], revenue: '$3k–10k/mo', effort: 'Low' },
+    { title: 'Recruiting Platform', desc: 'Niche job board and talent marketplace for a specific industry vertical.', tags: ['HR', 'Marketplace'], revenue: '$6k–22k/mo', effort: 'Medium' },
+    { title: 'Freelance Arbitrage', desc: 'Hire offshore talent, package services with premium positioning, and resell at 3–5× margins.', tags: ['Services', 'Leverage'], revenue: '$8k–30k/mo', effort: 'Medium' },
+    { title: 'Shopify App', desc: 'Solve a specific pain for Shopify merchants. Apps with strong value can earn $10k+ MRR fast.', tags: ['Tech', 'App Store'], revenue: '$5k–40k/mo', effort: 'High' },
+    { title: 'Influencer Marketing Tool', desc: 'SaaS dashboard for brands to discover, manage, and track influencer campaigns.', tags: ['SaaS', 'Marketing'], revenue: '$8k–35k/mo', effort: 'High' },
+    { title: 'SEO Content Agency', desc: 'Produce data-driven, AI-assisted SEO articles at scale for SaaS and e-commerce clients.', tags: ['Agency', 'Content'], revenue: '$10k–50k/mo', effort: 'High' },
+    { title: 'Podcast Production Service', desc: 'End-to-end podcast editing, show notes, and distribution for busy executives and creators.', tags: ['Media', 'Services'], revenue: '$5k–20k/mo', effort: 'Medium' },
+    { title: 'No-Code Web Agency', desc: 'Build landing pages, MVPs, and internal tools using Webflow, Bubble, and Framer.', tags: ['No-code', 'Agency'], revenue: '$6k–25k/mo', effort: 'Medium' },
+    { title: 'Personal Finance App', desc: 'Mobile-first budgeting and investment tracker for millennials and Gen Z.', tags: ['Fintech', 'Mobile'], revenue: '$5k–50k/mo', effort: 'High' },
+  ];
+  return { ideas: templates };
+}
+
+function mockRoadmap({ idea }) {
+  return {
+    hourly: [
+      { time: 'Hour 0–1', title: 'Define your niche', desc: 'Narrow your target audience to a specific pain point and customer profile.' },
+      { time: 'Hour 1–2', title: 'Competitor research', desc: 'Identify 5 direct competitors and map their pricing, positioning, and gaps.' },
+      { time: 'Hour 2–4', title: 'Value proposition', desc: 'Write your one-sentence pitch and unique differentiator.' },
+      { time: 'Hour 4–6', title: 'Landing page draft', desc: 'Create a basic Notion page or Google Doc outlining your offer.' },
+      { time: 'Hour 6–8', title: 'Outreach list', desc: 'Build a list of 50 potential customers. Find emails via LinkedIn.' },
+      { time: 'Hour 8–12', title: 'MVP scope', desc: 'Define the smallest possible version of your product that delivers value.' },
+      { time: 'Hour 12–16', title: 'First outreach', desc: 'Send 20 cold emails or DMs. Be specific about the problem you solve.' },
+      { time: 'Hour 16–20', title: 'Social proof plan', desc: 'Identify 3 people who could give you a testimonial or case study.' },
+      { time: 'Hour 20–24', title: 'Pricing model', desc: 'Set your launch price. Anchor high, offer an early-bird discount.' },
+    ],
+    daily: [
+      { time: 'Day 1', title: 'Domain & brand setup', desc: 'Register domain, set up email, create basic brand kit (logo, colors).' },
+      { time: 'Day 2', title: 'Build landing page', desc: 'Use Webflow, Framer, or Carrd. Focus on headline, CTA, and email capture.' },
+      { time: 'Day 3', title: 'Content strategy', desc: 'Plan 30 days of content. Choose 1–2 channels to focus on.' },
+      { time: 'Day 4', title: 'Product build begins', desc: 'Start building or sourcing your MVP. Time-box to 2 weeks max.' },
+      { time: 'Day 5', title: 'Beta user outreach', desc: 'Target 10 ideal customers for free beta access in exchange for feedback.' },
+      { time: 'Day 6', title: 'First content publish', desc: 'Post your first piece of value-driven content explaining your expertise.' },
+      { time: 'Day 7', title: 'Review & adapt', desc: 'Analyze responses, adjust messaging, and plan the coming week.' },
+    ],
+    monthly: [
+      { time: 'Days 8–10', title: 'Beta launch', desc: 'Onboard first 5–10 beta users. Collect feedback obsessively.' },
+      { time: 'Days 11–14', title: 'Iterate fast', desc: 'Fix top 3 issues from beta feedback. Focus on activation and retention.' },
+      { time: 'Days 15–17', title: 'First revenue', desc: 'Convert best beta users to paid. Offer a founding member deal.' },
+      { time: 'Days 18–21', title: 'Marketing flywheel', desc: 'Publish 2× per week. Start building email list and SEO footprint.' },
+      { time: 'Days 22–24', title: 'Referral program', desc: 'Launch a simple referral incentive to grow word-of-mouth.' },
+      { time: 'Days 25–27', title: 'Partnerships', desc: 'Reach out to 3 potential partners or distribution channels.' },
+      { time: 'Days 28–30', title: 'Public launch', desc: 'Post on ProductHunt, Twitter, Reddit, and relevant communities.' },
+    ],
+  };
+}
+
+function mockLaunch({ idea }) {
+  return {
+    salesPlan: [
+      { icon: '🎯', title: 'Ideal Customer Profile', desc: 'SMB owners aged 28–45 spending 2+ hrs/week on the problem you solve.' },
+      { icon: '📞', title: 'Outbound Sales', desc: 'Cold email 50 prospects/day using personalized pain-point messaging.' },
+      { icon: '🤝', title: 'Referral Program', desc: 'Give existing customers 20% recurring commission for every referral.' },
+      { icon: '💰', title: 'Pricing Strategy', desc: 'Lead with annual plans. Offer monthly at 20% premium.' },
+    ],
+    marketing: [
+      { icon: '📱', title: 'Content Marketing', desc: 'Publish 3 high-value posts/week on LinkedIn and Twitter. Go deep on pain points.' },
+      { icon: '🔍', title: 'SEO Foundations', desc: 'Target 10 long-tail keywords with 500–2000 monthly searches and <30 KD.' },
+      { icon: '📧', title: 'Email Sequences', desc: '7-email welcome sequence. Deliver value in every email, sell on email 5+.' },
+      { icon: '🎙️', title: 'Podcast Guesting', desc: 'Pitch 20 niche podcasts. One good interview = 500+ qualified leads.' },
+    ],
+    actionSteps: [
+      { title: 'Set up your GTM stack', desc: 'Configure CRM (HubSpot free), email (Loops or Resend), and analytics (Plausible).' },
+      { title: 'Create your sales deck', desc: 'Build a 10-slide Pitch + a 5-slide Demo deck. Practice until it's effortless.' },
+      { title: 'Launch on Product Hunt', desc: 'Schedule for a Tuesday. Gather 50 upvote commitments before launch day.' },
+      { title: 'Close your first $1k', desc: 'Don\'t stop outreach until you\'ve had 20 conversations. Revenue follows conversations.' },
+      { title: 'Post a case study', desc: 'Turn your first customer\'s result into a detailed case study. Repurpose across every channel.' },
+    ],
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   GENERATE IDEAS
+───────────────────────────────────────────────────────────────── */
+async function generateIdeas() {
+  const budget = document.getElementById('budget').value;
+  const skills = document.getElementById('skills').value;
+  const time = document.getElementById('time').value;
+  const interest = document.getElementById('interest').value;
+
+  if (!skills || !time || !interest) {
+    toast('Please fill in all fields', 'error'); return;
+  }
+
+  const btn = document.getElementById('gen-btn');
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  btn.disabled = true;
+
+  // Show skeleton loader
+  const container = document.getElementById('ideas-container');
+  container.innerHTML = '<div class="ideas-grid">' +
+    Array(6).fill('<div class="idea-card"><div class="skeleton" style="height:12px;width:60px;margin-bottom:12px"></div><div class="skeleton" style="height:20px;margin-bottom:10px"></div><div class="skeleton" style="height:12px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:70%"></div></div>').join('') +
+  '</div>';
+
+  try {
+    const data = await apiCall('/getIdeas', { budget, skills, time, interest });
+    renderIdeas(data.ideas);
+    toast('20 ideas generated!', 'success');
+  } catch(e) {
+    toast('Error generating ideas', 'error');
+    container.innerHTML = '';
+  }
+
+  btn.innerHTML = '<span>✦</span> Generate 20 Ideas';
+  btn.disabled = false;
+}
+
+function renderIdeas(ideas) {
+  const container = document.getElementById('ideas-container');
+  const tagColors = ['tag-gold', 'tag-blue', 'tag-green'];
+
+  container.innerHTML = `<div style="font-size:13px;color:var(--muted2);margin-bottom:16px;font-weight:500;">
+    Showing ${ideas.length} tailored ideas — click any card to build your roadmap
+  </div>
+  <div class="ideas-grid">` +
+    ideas.map((idea, i) => `
+      <div class="idea-card" onclick="selectIdea(${i})">
+        <div class="idea-number">Idea ${String(i+1).padStart(2,'0')}</div>
+        <div class="idea-title">${idea.title}</div>
+        <div class="idea-desc">${idea.desc}</div>
+        <div class="idea-tags">
+          ${(idea.tags||[]).map((t,ti) => `<span class="tag ${tagColors[ti%3]}">${t}</span>`).join('')}
+        </div>
+        <div class="idea-meta">
+          <div class="idea-stat">Revenue: <strong>${idea.revenue||'TBD'}</strong></div>
+          <button class="btn btn-primary btn-sm">Select →</button>
+        </div>
+      </div>
+    `).join('') +
+  '</div>';
+}
+
+async function selectIdea(i) {
+  // Get the idea from rendered cards
+  const cards = document.querySelectorAll('.idea-card');
+  const titleEl = cards[i].querySelector('.idea-title');
+  const descEl = cards[i].querySelector('.idea-desc');
+
+  state.selectedIdea = { title: titleEl.textContent, desc: descEl.textContent };
+  state.roadmap = null;
+  state.tasks = [];
+  saveState();
+
+  toast(`"${state.selectedIdea.title}" selected!`, 'success');
+  document.getElementById('launch-badge').style.display = '';
+
+  // Fetch roadmap
+  const data = await apiCall('/generateRoadmap', { idea: state.selectedIdea.title });
+  state.roadmap = data;
+
+  // Build tasks from roadmap
+  state.tasks = [
+    ...data.hourly.map(t => ({ label: `[24hr] ${t.title}`, done: false })),
+    ...data.daily.map(t => ({ label: `[Week] ${t.title}`, done: false })),
+    ...data.monthly.map(t => ({ label: `[Month] ${t.title}`, done: false })),
+  ];
+  saveState();
+
+  navigate('roadmap');
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   ROADMAP
+───────────────────────────────────────────────────────────────── */
+let activeTab = 'hourly';
+
+function switchTab(tab, el) {
+  activeTab = tab;
+  document.querySelectorAll('.roadmap-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderRoadmapPanel();
+}
+
+function renderRoadmap() {
+  if (state.selectedIdea) {
+    document.getElementById('selected-idea-display').textContent = state.selectedIdea.title;
+  }
+  if (!state.roadmap) {
+    document.getElementById('roadmap-content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🗺</div>
+        <h3>Select an idea first</h3>
+        <p>Go back to Generate Idea and choose a business concept to unlock your roadmap.</p>
+      </div>`;
+    return;
+  }
+  renderRoadmapPanel();
+}
+
+function renderRoadmapPanel() {
+  if (!state.roadmap) return;
+  const data = state.roadmap[activeTab] || [];
+  const container = document.getElementById('roadmap-content');
+
+  container.innerHTML = `
+    <div class="roadmap-panel active">
+      <div class="task-timeline">
+        ${data.map(task => `
+          <div class="task-item">
+            <div class="task-bullet"></div>
+            <div class="task-time">${task.time}</div>
+            <div>
+              <div class="task-title">${task.title}</div>
+              <div class="task-desc">${task.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TRACKERS
+───────────────────────────────────────────────────────────────── */
+let pieChart = null;
+
+function renderTrackers() {
+  const tasks = state.tasks;
+  const total = tasks.length;
+  const done = tasks.filter(t => t.done).length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('progress-pct').textContent = pct + '%';
+  setTimeout(() => {
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }, 100);
+
+  // Pie chart
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  if (pieChart) { pieChart.destroy(); }
+  pieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'Pending'],
+      datasets: [{
+        data: [done || 0, (total - done) || (total || 1)],
+        backgroundColor: ['#52c07a', '#1c1c28'],
+        borderColor: ['#22a05e', '#2a2a38'],
+        borderWidth: 2,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#9898b0', font: { family: 'DM Sans', size: 12 }, padding: 16, boxWidth: 12 }
+        }
+      },
+      cutout: '65%',
+    }
+  });
+
+  // Checklist
+  const cl = document.getElementById('checklist');
+  if (!tasks.length) {
+    cl.innerHTML = '<div class="empty-state" style="padding:20px"><p>Generate a roadmap to see tasks here.</p></div>';
+    return;
+  }
+
+  cl.innerHTML = tasks.map((task, i) => `
+    <div class="check-item ${task.done ? 'done' : ''}" onclick="toggleTask(${i})">
+      <div class="check-box">${task.done ? '✓' : ''}</div>
+      <div class="check-text">${task.label}</div>
+    </div>
+  `).join('');
+}
+
+function toggleTask(i) {
+  state.tasks[i].done = !state.tasks[i].done;
+  saveState();
+  renderTrackers();
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   NOTES
+───────────────────────────────────────────────────────────────── */
+function loadNotes() {
+  const area = document.getElementById('notes-area');
+  area.value = state.notes || '';
+  updateNotesStatus(false);
+}
+
+function insertNote(text) {
+  const area = document.getElementById('notes-area');
+  const pos = area.selectionStart;
+  area.value = area.value.substring(0, pos) + text + area.value.substring(pos);
+  area.focus();
+  area.selectionStart = area.selectionEnd = pos + text.length;
+  updateNotesStatus(false);
+}
+
+function updateNotesStatus(saved) {
+  const el = document.getElementById('notes-status');
+  if (saved) { el.textContent = '✓ Saved to cloud'; el.className = 'notes-status saved'; }
+  else { el.textContent = 'Unsaved changes'; el.className = 'notes-status'; }
+}
+
+async function saveNotes() {
+  const text = document.getElementById('notes-area').value;
+  state.notes = text;
+  saveState();
+
+  const btn = document.getElementById('save-notes-btn');
+  btn.innerHTML = '<span class="spinner" style="border-top-color:#1a1200"></span> Saving...';
+  btn.disabled = true;
+
+  await apiCall('/saveNotes', { notes: text, idea: state.selectedIdea?.title });
+
+  btn.innerHTML = '💾 Save Notes';
+  btn.disabled = false;
+  updateNotesStatus(true);
+  toast('Notes saved!', 'success');
+}
+
+function clearNotes() {
+  if (!confirm('Clear all notes?')) return;
+  document.getElementById('notes-area').value = '';
+  state.notes = '';
+  saveState();
+  updateNotesStatus(false);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const area = document.getElementById('notes-area');
+  if (area) area.addEventListener('input', () => updateNotesStatus(false));
+});
+
+/* ─────────────────────────────────────────────────────────────────
+   LAUNCH
+───────────────────────────────────────────────────────────────── */
+async function launchPlan() {
+  if (!state.selectedIdea) {
+    toast('Select a business idea first!', 'error'); return;
+  }
+
+  const btn = document.getElementById('launch-btn');
+  btn.innerHTML = '<span class="spinner" style="border-top-color:#1a1200"></span> Generating Plan...';
+  btn.disabled = true;
+
+  const data = await apiCall('/launchPlan', { idea: state.selectedIdea.title });
+  state.launchPlan = data;
+  saveState();
+
+  renderLaunchResults(data);
+  toast('Launch plan ready! 🚀', 'success');
+
+  btn.innerHTML = '✓ Plan Generated';
+}
+
+function renderLaunchResults(data) {
+  const el = document.getElementById('launch-results');
+  el.className = 'launch-results visible';
+
+  el.innerHTML = `
+    <div class="launch-section-title">💰 Sales Plan</div>
+    <div class="launch-cards-grid">
+      ${data.salesPlan.map(c => `
+        <div class="launch-card">
+          <div class="launch-card-icon">${c.icon}</div>
+          <div class="launch-card-title">${c.title}</div>
+          <div class="launch-card-desc">${c.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="launch-section-title">📣 Marketing Strategy</div>
+    <div class="launch-cards-grid">
+      ${data.marketing.map(c => `
+        <div class="launch-card">
+          <div class="launch-card-icon">${c.icon}</div>
+          <div class="launch-card-title">${c.title}</div>
+          <div class="launch-card-desc">${c.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="launch-section-title">⚡ Action Steps</div>
+    <div class="action-steps">
+      ${data.actionSteps.map((s,i) => `
+        <div class="action-step">
+          <div class="step-num">${i+1}</div>
+          <div class="step-content">
+            <div class="step-title">${s.title}</div>
+            <div class="step-desc">${s.desc}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="margin-top: 32px; text-align: center; padding: 20px;">
+      <button class="btn btn-success btn-lg" onclick="toast('Congrats! Your plan is saved. Time to execute! 🔥', 'success')">
+        🎉 I'm Ready — Let's Go
+      </button>
+    </div>
+  `;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  if (state.selectedIdea) {
+    document.getElementById('launch-badge').style.display = '';
+  }
+  if (state.notes) {
+    const area = document.getElementById('notes-area');
+    if (area) area.value = state.notes;
+  }
+});
+</script>
+</body>
+</html>
