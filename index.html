@@ -582,7 +582,7 @@ textarea.notes-area{
 //  CONFIG  —  paste your deployed Apps Script URL
 // ═══════════════════════════════════════════════
 const API_BASE  = 'https://script.google.com/macros/s/AKfycbw5GCv7c3Zd1gR0Qt6z-hybfo6W3eWyCAbVbzn6etI3VU-U8Ts4VRbYD2C6wudfvLmmAw/exec';
-const USE_MOCK  = False;   // set false after deploying backend
+const USE_MOCK  = false;  // false = real API, true = demo data
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -650,17 +650,27 @@ function toast(msg, type = 'info') {
 // ═══════════════════════════════════════════════
 async function api(route, body = {}) {
   if (USE_MOCK) return mockApi(route, body);
+
+  // Apps Script: send route as query param + body as text/plain to avoid CORS preflight
+  const url = API_BASE + '?route=' + encodeURIComponent(route);
   try {
-    const url = API_BASE + '?route=' + route;
-    const r   = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ route, ...body }),
+    const r = await fetch(url, {
+      method:   'POST',
+      headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
+      body:     JSON.stringify({ route, ...body }),
+      redirect: 'follow',
     });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return await r.json();
+    const text = await r.text();
+    try {
+      const data = JSON.parse(text);
+      if (data.error) throw new Error(data.error);
+      return data;
+    } catch(parseErr) {
+      throw new Error('Server response error: ' + text.substring(0, 100));
+    }
   } catch(e) {
-    toast('API unavailable — using demo data', 'info');
+    console.warn('API error:', e.message);
+    toast('Using demo data (API issue — check console)', 'info');
     return mockApi(route, body);
   }
 }
